@@ -25,15 +25,25 @@ router.get('/:id', async (req, res) => {
   try {
     const project = await projectDB.findProjectById(id);
     if (project) {
+      const tasks = await projectDB.findTasksForProject(id);
+      const resources = await projectDB.findResourcesForProject(id);
+      
       res.status(200).json({
         ...project,
-        projectCompleted: project.projectCompleted === 1
+        projectCompleted: project.projectCompleted === 1,
+        tasks: tasks.map(item => {
+          return {
+            ...item,
+            taskCompleted: item.taskCompleted === 1
+          }
+        }),
+        resources: resources
       })
     } else {
       res.status(404).json({ message: `no project of id ${id} exists` });
     }
   } catch (error) {
-    res.status(500).json({ message: 'error fetching project info'});
+    res.status(500).json({ message: error.message || 'error fetching project info'});
   }
 })
 
