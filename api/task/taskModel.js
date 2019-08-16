@@ -5,7 +5,8 @@ module.exports = {
   findTaskById,
   addTask,
   deleteTask,
-  updateTask
+  updateTask,
+  findContextForTask
 }
 
 function findTasks() {
@@ -26,4 +27,11 @@ function deleteTask(id) {
 
 function updateTask(id, changes) {
   return db('tasks').where({ id }).update(changes).then(() => findTaskById(id));
+}
+
+function findContextForTask(id) {
+  return db('task_context as tc')
+          .where('tc.taskId', id)
+          .join('contexts as c', 'tc.contextId', 'c.id')
+          .select('c.id', 'c.contextName');
 }

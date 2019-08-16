@@ -23,16 +23,19 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
   try {
     const task = await taskDB.findTaskById(id);
+    const contexts = await taskDB.findContextForTask(id);
+
     if (task) {
       res.status(200).json({
         ...task,
-        taskCompleted: task.taskCompleted === 1
+        taskCompleted: task.taskCompleted === 1,
+        contexts: contexts
       });
     } else {
       res.status(404).json({ message: `no task of id ${id} exists` });
     }
   } catch (error) {
-    res.status(500).json({ message: 'error fetching task info'});
+    res.status(500).json({ message: error.message || 'error fetching task info'});
   }
 })
 
