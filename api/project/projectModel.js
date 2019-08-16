@@ -5,7 +5,9 @@ module.exports = {
   findProjectById,
   addProject,
   findTasksForProject,
-  findResourcesForProject
+  findResourcesForProject,
+  deleteProject,
+  updateProject
 }
 
 function findProjects() {
@@ -29,4 +31,12 @@ function findResourcesForProject(id) {
           .where('pr.projectId', id)
           .join('resources as r', 'pr.resourceId', 'r.id')
           .select('r.id', 'r.resourceName', 'r.resourceDescription');
+}
+
+function deleteProject(id) {
+  return db('projects').where({ id }).del();
+}
+
+function updateProject(id, changes) {
+  return db('projects').where({ id }).update(changes).then(() => findProjectById(id));
 }

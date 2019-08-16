@@ -41,16 +41,50 @@ router.post('/', validateTask, async (req, res) => {
   const task = req.body;
   try {
     const newTask = await taskDB.addTask(task);
-    res.status(200).json(newTask);
+    res.status(201).json(newTask);
   } catch (error) {
     res.status(500).json({ message: error.message || 'error adding task'});
+  }
+})
+
+//delete a task
+router.delete('/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const toDelete = await taskDB.findTaskById(id);
+    const deleted = await taskDB.deleteTask(id);
+
+    if (deleted) {
+      res.status(200).json({ removed: toDelete });
+    } else {
+      res.status(404).json({ message: `no task of id ${id} exists` });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'error deleting task'});
+  }
+})
+
+//updating a task
+router.put('/:id', validateTask, async (req, res) => {
+  const id = req.params.id;
+  const task = req.body;
+  try {
+    const updatedTask = await taskDB.updateTask(id, task);
+    
+    if (updatedTask) {
+      res.status(200).json(updatedTask);
+    } else {
+      res.status(404).json({ message: `no task of id ${id} exists` });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'error updating task'});
   }
 })
 
 //middlewares
 function validateTask(req, res, next) {
   let body = req.body;
-  if (!body.taskDescription || !body.projectID) {
+  if (!body.taskDescription || !body.projectId) {
     res.status(400).json({ message: 'task description and projectID are required' });
   } else {
     next();

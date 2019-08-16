@@ -52,9 +52,42 @@ router.post('/', validateProject, async (req, res) => {
   const project = req.body;
   try {
     const newProject = await projectDB.addProject(project);
-    res.status(200).json(newProject);
+    res.status(201).json(newProject);
   } catch (error) {
-    res.status(500).json({ message: error.message || 'error adding resources'});
+    res.status(500).json({ message: error.message || 'error adding project'});
+  }
+})
+
+//delete a project
+router.delete('/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const toDelete = await projectDB.findProjectById(id);
+    const deleted = await projectDB.deleteProject(id);
+
+    if (deleted) {
+      res.status(200).json({removed: toDelete});
+    } else {
+      res.status(404).json({ message: `no project of id ${id} exists` });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'error deleting project'});
+  }
+})
+
+//update a project
+router.put('/:id', validateProject, async (req, res) => {
+  const id = req.params.id;
+  const project = req.body;
+  try {
+    const updatedProject = await projectDB.updateProject(id, project);
+    if (updatedProject) {
+      res.status(200).json(updatedProject);
+    } else {
+      res.status(404).json({ message: `no project of id ${id} exists` });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'error updating project'});
   }
 })
 
